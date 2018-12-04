@@ -12,7 +12,7 @@ class Cards
     "V\u2665" => 10, "V\u2666" => 10, "V\u2663" => 10, "V\u2660" => 10,
     "Q\u2665" => 10, "Q\u2666" => 10, "Q\u2663" => 10, "Q\u2660" => 10,
     "K\u2665" => 10, "K\u2666" => 10, "K\u2663" => 10, "K\u2660" => 10,
-    "T\u2665" => 11, "T\u2666" => 11, "T\u2663" => 11, "T\u2660" => 11
+    "A\u2665" => 11, "A\u2666" => 11, "A\u2663" => 11, "A\u2660" => 11
   }
   attr_reader :card_deck
 
@@ -22,7 +22,7 @@ class Cards
 
   def cards_interfere
     new_deck = CARDS_VALUE.to_a.shuffle
-    self.card_deck = new_deck.take(6).to_h
+    self.card_deck = new_deck.take(6)
   end
 
   private
