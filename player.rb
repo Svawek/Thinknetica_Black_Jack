@@ -29,6 +29,10 @@ class Player
     end
   end
 
+  def zeroing_cards
+    self.cards = {}
+  end
+
   private
   attr_writer :cards, :balance, :points, :name
 end
