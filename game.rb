@@ -11,7 +11,7 @@ class Game
   end
 
   def give_card(player, deck)
-    card = deck.card_deck.slice(0)
+    card = deck.card_deck.slice!(0)
     player.cards.merge!(Hash[ [card] ])
     player.count_points
   end

@@ -9,6 +9,10 @@ class Main
     @player2
     @cards
     @game
+    @show = false
+    @skip_turn = true
+    @more_cards = true
+    @open_cards = true
   end
 
   def create_game
@@ -24,14 +28,24 @@ class Main
 
   def deal
     self.cards.cards_interfere
-    self.game.bet(self.player1, self.player2)
-    2.times {self.game.give_card(player1, self.cards)}
-    2.times {self.game.give_card(player2, self.cards)}
+    self.game.bet(player1, player2)
+    #2.times do
+    for i in 1..2
+      self.game.give_card(player1, self.cards)
+      self.game.give_card(player2, self.cards)
+    end
     print "Карты игрока #{player1.name}: #{show_cards(player1)}"
+    cards_amount = player2.cards.length
+    if @show
+      puts "Карты игрока #{player2.name}: #{show_cards(player2)}"
+    else
+      puts "Карты игрока #{player2.name}: #{cards_amount.times { print "*" }}"
+    end
+    player_selection
   end
 
   def player_selection
-
+    puts ""
   end
 
   def show_cards(player)
