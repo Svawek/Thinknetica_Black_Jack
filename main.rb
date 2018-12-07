@@ -1,9 +1,10 @@
 require_relative 'cards'
 require_relative 'player'
 require_relative 'game'
+require 'byebug'
 
 class Main
-  attr_accessor :player1, :player2, :cards, :game
+  attr_accessor :player1, :player2, :cards, :game, :cards_picture
   def initialize
     @player1
     @player2
@@ -14,6 +15,7 @@ class Main
     @more_cards_player1 = true
     @more_cards_player2 = true
     @open_cards = true
+    @cards_picture = []
   end
 
   def create_game
@@ -47,11 +49,11 @@ class Main
     puts "Нажмите O, что бы открыть карты" if @open_cards
     answer = gets.chomp
     case answer
-    when "M"
+    when "M", "m"
       one_more_card(player1)
-    when "S"
+    when "S", "s"
       skip_player_turn(player1)
-    when "O"
+    when "O", "o"
       open_all_cards
     else
       puts "Не правильный выбор"
@@ -65,9 +67,11 @@ class Main
       @more_cards_player1 = false
       show_points
       player2_turn
+    elsif player1.cards.length == 3 && player2.cards.length == 3
+      open_all_cards
     else
       player_selection
-    end
+    end 
   end
 
   def skip_player_turn(player)
@@ -95,22 +99,25 @@ class Main
   end
 
   def winner
-    if player1.points == player2.points || player1.points > 21 && player2.points > 21
-      puts "Ничья!"
-    elsif player1.points > player2.points && player1.points <= 21
+    # if player1.points == player2.points
+    #   puts "Ничья!"
+    if (player1.points > player2.points || player2.points > 21) && player1.points <= 21
       puts "Победил #{player1.name}!"
-    else
+    elsif (player2.points > player1.points || player1.points > 21) && player2.points <= 21
       puts "Победил #{player2.name}!"
+    else
+      puts "Ничья!"
     end
     self.game.give_bank(player1, player2)
     puts "Баланс #{player1.name} - #{player1.balance}. " \
     "Баланс #{player2.name} - #{player2.balance}."
+    puts "====================================================================="
     if player1.balance == 0
       puts "Игрок #{player2.name} Победил"
-      exit
+      start_over
     elsif player2.balance == 0
       puts "Игрок #{player1.name} Победил"
-      exit
+      start_over
     else
       new_game
     end
@@ -129,21 +136,37 @@ class Main
   end
 
   def show_cards(player)
-    player.cards.each_key { |key| key }
+    self.cards_picture = []
+    player.cards.each_key { |key| self.cards_picture << key }
   end
 
   def show_points
-    print "Карты игрока #{player1.name}: #{show_cards(player1)}. Количество очков: #{player1.points}"
+    show_cards(player1)
+    puts "Карты игрока #{player1.name}: #{cards_picture}. Количество очков: #{player1.points}"
     cards_amount = player2.cards.length
     if @show
-      puts "Карты игрока #{player2.name}: #{show_cards(player2)}"
+      show_cards(player2)
+      puts "Карты игрока #{player2.name}: #{cards_picture}. Количество очков: #{player2.points}"
     else
-      puts "Карты игрока #{player2.name}: #{cards_amount.times { print "*" }}"
+      puts "Карты игрока #{player2.name}: ***"
     end
   end
 
   def greeting
     'Приветствую в игре Black Jack Ruby'
+  end
+
+  def start_over
+    puts "Нажмите 1, что бы начать заново"
+    puts "Нажмите что угодно, что бы выйти"
+    answer = gets.chomp
+    case answer
+    when "1"
+      new_game
+      create_game
+    else
+       exit
+    end
   end
 
 end
