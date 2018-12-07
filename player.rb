@@ -1,3 +1,4 @@
+# Class manage main players functions
 class Player
   attr_reader :cards, :balance, :points, :name
   def initialize(name)
@@ -13,22 +14,23 @@ class Player
 
   def count_points
     points_arr = []
+    last_card_value = cards.to_a.last[1]
 
-    aces = self.cards.select { |k,v| v == 11 }
+    aces = cards.select { |_k, v| v == 11 }
     aces_arr = aces.to_a
     if aces.length > 1
       aces_arr.slice!(0)
       aces_arr.each do |card|
-        self.cards[card[0]] = 1
+        cards[card[0]] = 1
       end
-    elsif self.cards.length == 3 && (self.points > 10 && !aces.empty?)
+    elsif cards.length == 3 && (points + last_card_value > 21 && !aces.empty?)
       aces_arr.each do |card|
-        self.cards[card[0]] = 1
+        cards[card[0]] = 1
       end
     end
-    
+
     @points = 0
-    self.cards.each_value do |value|
+    cards.each_value do |value|
       points_arr << value
     end
     points_arr.each { |point| self.points += point }
@@ -39,5 +41,6 @@ class Player
   end
 
   private
+
   attr_writer :cards, :balance, :points, :name
 end

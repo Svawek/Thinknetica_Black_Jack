@@ -1,3 +1,4 @@
+# Class manage cards and their values
 class Cards
   CARDS_VALUE = {
     "2\u2665" => 2, "2\u2666" => 2, "2\u2663" => 2, "2\u2660" => 2,
@@ -13,7 +14,7 @@ class Cards
     "Q\u2665" => 10, "Q\u2666" => 10, "Q\u2663" => 10, "Q\u2660" => 10,
     "K\u2665" => 10, "K\u2666" => 10, "K\u2663" => 10, "K\u2660" => 10,
     "A\u2665" => 11, "A\u2666" => 11, "A\u2663" => 11, "A\u2660" => 11
-  }
+  }.freeze
   attr_reader :card_deck
 
   def initialize
@@ -26,5 +27,6 @@ class Cards
   end
 
   private
+
   attr_writer :card_deck
 end
