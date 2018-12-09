@@ -13,15 +13,17 @@ class Game
 
   def give_card(player, deck)
     card = deck.card_deck.slice!(0)
-    player.cards.merge!(Hash[[card]])
-    player.count_points
+    player.hand[0].cards << card
+    player.hand[0].count_points
   end
 
   def give_bank(player1, player2)
-    if player1.points == player2.points || player1.points > 21 && player2.points > 21
+    points_p1 = player1.hand[0].points
+    points_p2 = player2.hand[0].points
+    if points_p1 == points_p2 || points_p1 > 21 && points_p2 > 21
       player1.change_balance(self.bank / 2)
       player2.change_balance(self.bank / 2)
-    elsif player1.points > player2.points && player1.points <= 21
+    elsif points_p1 > points_p2 && points_p1 <= 21
       player1.change_balance(bank)
     else
       player2.change_balance(bank)

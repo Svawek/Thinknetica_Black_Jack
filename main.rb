@@ -1,6 +1,8 @@
 require_relative 'cards'
 require_relative 'player'
 require_relative 'game'
+require_relative 'interface'
+require_relative 'hand'
 require 'byebug'
 
 # Class manage interface
@@ -16,14 +18,17 @@ class Main
     @more_cards_player2 = true
     @open_cards = true
     @cards_picture = []
+    @interface = Interface.new
   end
 
   def create_game
-    puts greeting
-    puts 'Введите Ваше имя:'
-    name = gets.chomp
+    @interface.greeting
+    @interface.player_name
+    name = @interface.receive_answer
     @player1 = Player.new(name)
+    self.player1.hand << Hand.new
     @player2 = Player.new('Компьютер')
+    self.player2.hand << Hand.new
     @cards = Cards.new
     @game = Game.new
     deal
@@ -32,57 +37,36 @@ class Main
   def deal
     cards.cards_interfere
     game.bet(player1, player2)
-    # 2.times do
     (1..2).each do |_i|
       game.give_card(player1, cards)
       game.give_card(player2, cards)
     end
-    player1.count_points
-    player2.count_points
+    #player1.count_points
+    #player2.count_points
     show_points
     player_selection
   end
 
   def player_selection
-    puts 'Нажмите M, что бы взять еще одну карту' if @more_cards_player1
-    puts 'Нажмите S, что бы пропустить ход' if @skip_turn
-    puts 'Нажмите O, что бы открыть карты' if @open_cards
-    answer = gets.chomp
+    @interface.more_cards if @more_cards_player1
+    @interface.skip_turn if @skip_turn
+    @interface.open_cards if @open_cards
+    answer = @interface.receive_answer
     valid(answer)
-    case answer
-    when 'M', 'm'
-      one_more_card(player1)
-    when 'S', 's'
-      skip_player_turn(player1)
-    when 'O', 'o'
-      open_all_cards
-    end
+    @interface.menu_item_selection(self, player1, answer)
   rescue RuntimeError => e
     puts e.message
     retry
   end
 
-  def greeting
-    'Приветствую в игре Black Jack Ruby'
-  end
-
-  private
-
-  attr_writer :player1, :player2, :cards, :game, :show, :skip_turn
-  attr_writer :more_cards_player1, :more_cards_player2, :open_cards, :cards_picture
-
-  def valid(choise)
-    raise 'Не правильный выбор' unless choise =~ SELECTIONS
-  end
-
   def one_more_card(player)
     game.give_card(player, cards)
-    player.count_points
+    #player.count_points
     if player == player1
       self.more_cards_player1 = false
       show_points
       player2_turn
-    elsif player1.cards.length == 3 && player2.cards.length == 3
+    elsif player1.hand[0].cards.length == 3 && player2.hand[0].cards.length == 3
       open_all_cards
     else
       player_selection
@@ -104,8 +88,17 @@ class Main
     winner
   end
 
+  private
+
+  attr_writer :player1, :player2, :cards, :game, :show, :skip_turn
+  attr_writer :more_cards_player1, :more_cards_player2, :open_cards, :cards_picture
+
+  def valid(choise)
+    raise 'Не правильный выбор' unless choise =~ SELECTIONS
+  end
+
   def player2_turn
-    if @more_cards_player2 && player2.points < 17
+    if @more_cards_player2 && player2.hand[0].points < 17
       self.more_cards_player2 = false
       one_more_card(player2)
     else
@@ -120,44 +113,38 @@ class Main
     self.more_cards_player2 = true
     self.open_cards = true
     self.cards = Cards.new
-    player1.zeroing_cards
-    player2.zeroing_cards
+    player1.hand[0].zeroing_cards
+    player2.hand[0].zeroing_cards
     deal
   end
 
-  def show_cards(player)
-    self.cards_picture = []
-    player.cards.each_key { |key| cards_picture << key }
-  end
-
   def show_points
-    show_cards(player1)
-    puts "Карты игрока #{player1.name}: #{cards_picture}. Количество очков: #{player1.points}"
+    @interface.show_cards_points(player1)
     if @show
-      show_cards(player2)
-      puts "Карты игрока #{player2.name}: #{cards_picture}. Количество очков: #{player2.points}"
+      @interface.show_cards_points(player2)
     else
-      puts "Карты игрока #{player2.name}: ***"
+      @interface.show_computer_cards(player2)
     end
   end
 
   def winner
-    if (player1.points > player2.points || player2.points > 21) && player1.points <= 21
-      puts "Победил #{player1.name}!"
-    elsif (player2.points > player1.points || player1.points > 21) && player2.points <= 21
-      puts "Победил #{player2.name}!"
+    points_p1 = player1.hand[0].points
+    points_p2 = player2.hand[0].points
+    if (points_p1 > points_p2 || points_p2 > 21) && points_p1 <= 21
+      @interface.winner(player1)
+    elsif (points_p2 > points_p1 || points_p1 > 21) && points_p2 <= 21
+      @interface.winner(player2)
     else
-      puts 'Ничья!'
+      @interface.draw
     end
     game.give_bank(player1, player2)
-    puts "Баланс #{player1.name} - #{player1.balance}. " \
-    "Баланс #{player2.name} - #{player2.balance}."
-    puts '====================================================================='
+    @interface.show_balance(player1, player2)
+    @interface.show_separator
     if player1.balance.zero?
-      puts "Игрок #{player2.name} Победил"
+      @interface.show_winner_game(player2)
       start_over
     elsif player2.balance.zero?
-      puts "Игрок #{player1.name} Победил"
+      @interface.show_winner_game(player1)
       start_over
     else
       new_game
