@@ -50,13 +50,5 @@ class Hand
 
   attr_writer :cards, :points, :aces
 
-  def card_value(card)
-    if card[0].to_i > 0
-      card[0].to_i
-    elsif card[0] == '10'
-      10
-    else
-      10
-    end
-  end
+  
 end
