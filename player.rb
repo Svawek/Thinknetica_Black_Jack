@@ -12,5 +12,6 @@ class Player
   end
 
   private
+
   attr_writer :balance, :name, :hand
 end

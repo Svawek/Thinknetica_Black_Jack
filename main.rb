@@ -26,9 +26,9 @@ class Main
     @interface.player_name
     name = @interface.receive_answer
     @player1 = Player.new(name)
-    self.player1.hand << Hand.new
+    player1.hand << Hand.new
     @player2 = Player.new('Компьютер')
-    self.player2.hand << Hand.new
+    player2.hand << Hand.new
     @cards = Cards.new
     @game = Game.new
     deal
@@ -41,8 +41,6 @@ class Main
       game.give_card(player1, cards)
       game.give_card(player2, cards)
     end
-    #player1.count_points
-    #player2.count_points
     show_points
     player_selection
   end
@@ -61,7 +59,6 @@ class Main
 
   def one_more_card(player)
     game.give_card(player, cards)
-    #player.count_points
     if player == player1
       self.more_cards_player1 = false
       show_points
@@ -88,6 +85,28 @@ class Main
     winner
   end
 
+  def start_over
+    @interface.start_over_ask
+    answer = @interface.receive_answer
+    @interface.start_over_choise(self, answer)
+  end
+
+  def new_game
+    default_value
+    self.cards = Cards.new
+    player1.hand[0].zeroing_cards
+    player2.hand[0].zeroing_cards
+    deal
+  end
+
+  def default_value
+    self.show = false
+    self.skip_turn = true
+    self.more_cards_player1 = true
+    self.more_cards_player2 = true
+    self.open_cards = true
+  end
+
   private
 
   attr_writer :player1, :player2, :cards, :game, :show, :skip_turn
@@ -104,18 +123,6 @@ class Main
     else
       skip_player_turn(player2)
     end
-  end
-
-  def new_game
-    self.show = false
-    self.skip_turn = true
-    self.more_cards_player1 = true
-    self.more_cards_player2 = true
-    self.open_cards = true
-    self.cards = Cards.new
-    player1.hand[0].zeroing_cards
-    player2.hand[0].zeroing_cards
-    deal
   end
 
   def show_points
@@ -140,6 +147,10 @@ class Main
     game.give_bank(player1, player2)
     @interface.show_balance(player1, player2)
     @interface.show_separator
+    game_over
+  end
+
+  def game_over
     if player1.balance.zero?
       @interface.show_winner_game(player2)
       start_over
@@ -148,19 +159,6 @@ class Main
       start_over
     else
       new_game
-    end
-  end
-
-  def start_over
-    puts 'Нажмите 1, что бы начать заново'
-    puts 'Нажмите что угодно, что бы выйти'
-    answer = gets.chomp
-    case answer
-    when '1'
-      new_game
-      create_game
-    else
-      exit
     end
   end
 end
