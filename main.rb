@@ -43,7 +43,6 @@ class Main
       game.give_card(player2, cards)
     end
     show_points
-    byebug
     player_selection
   end
 
@@ -95,7 +94,7 @@ class Main
 
   def new_game
     default_value
-    self.cards = Cards.new
+    self.cards = Deck.new
     player1.hand[0].zeroing_cards
     player2.hand[0].zeroing_cards
     deal

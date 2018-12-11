@@ -23,7 +23,7 @@ class Deck
   end
 
   def create_card(value, suit)
-    self.card_deck << Card.new(value, suit)
+    card_deck << Card.new(value, suit)
   end
 
   private

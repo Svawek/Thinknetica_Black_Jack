@@ -36,8 +36,16 @@ class Interface
   end
 
   def show_cards_points(player)
-    puts "Карты игрока #{player.name}: #{player.hand[0].show_cards}. " \
+    puts "Карты игрока #{player.name}: #{show_cards(player.hand[0])}. " \
     "Количество очков: #{player.hand[0].points}"
+  end
+
+  def show_cards(hand)
+    cards = []
+    hand.cards.each do |card|
+      cards << card.value + card.suit
+    end
+    print cards.join(' ')
   end
 
   def show_computer_cards(player)
