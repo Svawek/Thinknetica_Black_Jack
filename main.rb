@@ -1,8 +1,9 @@
-require_relative 'cards'
+require_relative 'card'
 require_relative 'player'
 require_relative 'game'
 require_relative 'interface'
 require_relative 'hand'
+require_relative 'deck'
 require 'byebug'
 
 # Class manage interface
@@ -29,7 +30,7 @@ class Main
     player1.hand << Hand.new
     @player2 = Player.new('Компьютер')
     player2.hand << Hand.new
-    @cards = Cards.new
+    @cards = Deck.new
     @game = Game.new
     deal
   end
@@ -42,6 +43,7 @@ class Main
       game.give_card(player2, cards)
     end
     show_points
+    byebug
     player_selection
   end
 

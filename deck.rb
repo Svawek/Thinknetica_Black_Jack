@@ -16,14 +16,14 @@ class Deck
         deck << [card, suit]
       end
     end
-    deck = deck.take(6)
+    deck = deck.shuffle.take(6)
     deck.each do |card|
       create_card(card[0], card[1])
     end
   end
 
   def create_card(value, suit)
-    self.card_deck = Card.new(value, suit)
+    self.card_deck << Card.new(value, suit)
   end
 
   private

@@ -36,7 +36,7 @@ class Interface
   end
 
   def show_cards_points(player)
-    puts "Карты игрока #{player.name}: #{player.hand[0].cards.join}. " \
+    puts "Карты игрока #{player.name}: #{player.hand[0].show_cards}. " \
     "Количество очков: #{player.hand[0].points}"
   end
 
