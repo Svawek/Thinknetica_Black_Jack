@@ -45,7 +45,7 @@ class Interface
     hand.cards.each do |card|
       cards << card.value + card.suit
     end
-    print cards.join(' ')
+    cards.join(' ')
   end
 
   def show_computer_cards(player)
