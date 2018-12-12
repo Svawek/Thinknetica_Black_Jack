@@ -3,30 +3,22 @@ class Deck
   CARDS = %w[2 3 4 5 6 7 8 9 10 V Q K A].freeze
   SUITS = %w[♤ ♡ ♧ ♢].freeze
 
-  attr_reader :card_deck
+  attr_reader :cards
 
   def initialize
-    @card_deck = []
+    @cards = []
   end
 
   def cards_interfere
-    deck = []
     CARDS.each do |card|
       SUITS.each do |suit|
-        deck << [card, suit]
+        self.cards << Card.new(card, suit)
       end
     end
-    deck = deck.shuffle.take(6)
-    deck.each do |card|
-      create_card(card[0], card[1])
-    end
-  end
-
-  def create_card(value, suit)
-    card_deck << Card.new(value, suit)
+    self.cards = self.cards.shuffle.take(6)
   end
 
   private
 
-  attr_writer :card_deck
+  attr_writer :cards
 end

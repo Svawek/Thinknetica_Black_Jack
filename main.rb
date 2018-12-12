@@ -38,7 +38,7 @@ class Main
   def deal
     cards.cards_interfere
     game.bet(player1, player2)
-    (1..2).each do |_i|
+    2.times do
       game.give_card(player1, cards)
       game.give_card(player2, cards)
     end

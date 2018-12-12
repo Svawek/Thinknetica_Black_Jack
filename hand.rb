@@ -7,24 +7,9 @@ class Hand
   end
 
   def count_points
-    self.points = 0
-    aces = 0
-    cards.each do |card|
-      self.points += card.points
-      aces += 1 if card.points == 11
-    end
-
-    if self.points > 21 && aces == 1
-      self.points -= 10
-    elsif self.points > 21 && aces == 2
-      self.points = if self.points < 32
-                      self.points - 10
-                    else
-                      self.points - 20
-                    end
-    elsif aces == 3
-      self.points = 13
-    end
+    sum = self.cards.map(&:points).sum
+    self.cards.select(&:ace?).each { sum -= 10 if sum > 21 }
+    self.points = sum
   end
 
   def zeroing_cards

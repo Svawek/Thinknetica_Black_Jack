@@ -15,14 +15,8 @@ class Card
               end
   end
 
-  def card_value(value)
-    if value.to_i > 0
-      card[0].to_i
-    elsif value =~ PICTURES
-      10
-    else
-      11
-    end
+  def ace?
+    true if self.points == 11
   end
 
   private
