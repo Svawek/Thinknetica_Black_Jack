@@ -64,7 +64,7 @@ class Main
       self.more_cards_player1 = false
       show_points
       player2_turn
-    elsif player1.hand[0].cards.length == 3 && player2.hand[0].cards.length == 3
+    elsif cards.cards.size == 2
       open_all_cards
     else
       player_selection
