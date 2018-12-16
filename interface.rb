@@ -74,16 +74,13 @@ class Interface
   end
 
   def start_over_ask
-    puts 'Нажмите 1, что бы начать заново'
-    puts 'Нажмите что угодно, что бы выйти'
+    puts 'Нажмите 1, что бы выйти'
+    puts 'Нажмите что угодно, что бы продолжить'
   end
 
   def start_over_choise(location, answer)
     case answer
     when '1'
-      location.default_value
-      location.create_game
-    else
       exit
     end
   end

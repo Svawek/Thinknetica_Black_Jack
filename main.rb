@@ -23,16 +23,18 @@ class Main
   end
 
   def create_game
-    @interface.greeting
-    @interface.player_name
-    name = @interface.receive_answer
-    @player1 = Player.new(name)
-    player1.hand << Hand.new
-    @player2 = Player.new('Компьютер')
-    player2.hand << Hand.new
-    @cards = Deck.new
-    @game = Game.new
-    deal
+    loop do
+      @interface.greeting
+      @interface.player_name
+      name = @interface.receive_answer
+      @player1 = Player.new(name)
+      player1.hand << Hand.new
+      @player2 = Player.new('Компьютер')
+      player2.hand << Hand.new
+      @cards = Deck.new
+      @game = Game.new
+      deal
+    end
   end
 
   def deal
@@ -64,7 +66,7 @@ class Main
       self.more_cards_player1 = false
       show_points
       player2_turn
-    elsif cards.cards.size == 2
+    elsif self.cards.cards.size == 0
       open_all_cards
     else
       player_selection
