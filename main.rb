@@ -31,21 +31,32 @@ class Main
       player1.hand << Hand.new
       @player2 = Player.new('Компьютер')
       player2.hand << Hand.new
-      @cards = Deck.new
+      @cards
       @game = Game.new
       deal
+      start_over
     end
   end
 
   def deal
-    cards.cards_interfere
-    game.bet(player1, player2)
-    2.times do
-      game.give_card(player1, cards)
-      game.give_card(player2, cards)
+    loop do
+      if player1.balance.zero?
+        @interface.show_winner_game(player2)
+        break
+      elsif player2.balance.zero?
+        @interface.show_winner_game(player1)
+        break
+      end 
+      self.cards = Deck.new
+      cards.cards_interfere
+      game.bet(player1, player2)
+      2.times do
+        game.give_card(player1, cards)
+        game.give_card(player2, cards)
+      end
+      show_points
+      player_selection
     end
-    show_points
-    player_selection
   end
 
   def player_selection
@@ -62,11 +73,11 @@ class Main
 
   def one_more_card(player)
     game.give_card(player, cards)
-    if player == player1
+    if player = player1
       self.more_cards_player1 = false
       show_points
       player2_turn
-    elsif self.cards.cards.size == 0
+    elsif self.cards.cards.length == 0
       open_all_cards
     else
       player_selection
@@ -94,20 +105,14 @@ class Main
     @interface.start_over_choise(self, answer)
   end
 
-  def new_game
-    default_value
-    self.cards = Deck.new
-    player1.hand[0].zeroing_cards
-    player2.hand[0].zeroing_cards
-    deal
-  end
-
   def default_value
     self.show = false
     self.skip_turn = true
     self.more_cards_player1 = true
     self.more_cards_player2 = true
     self.open_cards = true
+    player1.hand[0].zeroing_cards
+    player2.hand[0].zeroing_cards
   end
 
   private
@@ -117,6 +122,8 @@ class Main
 
   def valid(choise)
     raise 'Не правильный выбор' unless choise =~ SELECTIONS
+    raise 'Не правильный выбор' if choise =~/^[mM]$/ && !more_cards_player1
+    raise 'Не правильный выбор' if choise =~/^[sS]$/ && !skip_turn
   end
 
   def player2_turn
@@ -150,19 +157,7 @@ class Main
     game.give_bank(player1, player2)
     @interface.show_balance(player1, player2)
     @interface.show_separator
-    game_over
-  end
-
-  def game_over
-    if player1.balance.zero?
-      @interface.show_winner_game(player2)
-      start_over
-    elsif player2.balance.zero?
-      @interface.show_winner_game(player1)
-      start_over
-    else
-      new_game
-    end
+    default_value
   end
 end
 
