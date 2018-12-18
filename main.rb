@@ -33,30 +33,60 @@ class Main
       player2.hand << Hand.new
       @cards
       @game = Game.new
-      deal
-      start_over
+      game
     end
   end
 
-  def deal
+  def game
     loop do
-      if player1.balance.zero?
-        @interface.show_winner_game(player2)
-        break
-      elsif player2.balance.zero?
-        @interface.show_winner_game(player1)
-        break
-      end 
-      self.cards = Deck.new
-      cards.cards_interfere
-      game.bet(player1, player2)
-      2.times do
-        game.give_card(player1, cards)
-        game.give_card(player2, cards)
-      end
-      show_points
-      player_selection
+      start_game
+      deal
+      player1_turn
+      player2_turn unless @show
+      cards_on_hands unless @show
+      player1_turn unless @show
+      winner
+      default_value
     end
+  end
+
+  def start_game
+    self.cards = Deck.new
+    cards.cards_interfere
+    game.bet(player1, player2)
+  end
+
+  def deal
+    # self.cards = Deck.new
+    # cards.cards_interfere
+    2.times do
+      game.give_card(player1, cards)
+      game.give_card(player2, cards)
+    end
+    show_points
+    # loop do
+    #   if player1.balance.zero?
+    #     @interface.show_winner_game(player2)
+    #     break
+    #   elsif player2.balance.zero?
+    #     @interface.show_winner_game(player1)
+    #     break
+    #   end 
+    #   self.cards = Deck.new
+    #   cards.cards_interfere
+    #   game.bet(player1, player2)
+    #   2.times do
+    #     game.give_card(player1, cards)
+    #     game.give_card(player2, cards)
+    #   end
+    #   show_points
+    #   player_selection
+    # end
+  end
+
+  def player1_turn
+    player_selection
+    show_points
   end
 
   def player_selection
@@ -73,30 +103,39 @@ class Main
 
   def one_more_card(player)
     game.give_card(player, cards)
-    if player = player1
-      self.more_cards_player1 = false
-      show_points
-      player2_turn
-    elsif self.cards.cards.length == 0
-      open_all_cards
-    else
-      player_selection
-    end
+    self.more_cards_player1 = false if player = player1
+    # game.give_card(player, cards)
+    # if player = player1
+    #   self.more_cards_player1 = false
+    #   show_points
+    #   player2_turn
+    # elsif self.cards.cards.length == 0
+    #   open_all_cards
+    # else
+    #   player_selection
+    # end
   end
 
   def skip_player_turn(player)
-    if player == player1
-      self.skip_turn = false
-      player2_turn
-    else
-      player_selection
-    end
+    self.skip_turn = false if player == player1
+    # if player == player1
+    #   self.skip_turn = false
+    #   player2_turn
+    # else
+    #   player_selection
+    # end
   end
 
   def open_all_cards
     self.show = true
-    show_points
-    winner
+    # self.show = true
+    # show_points
+    # winner
+  end
+
+  def cards_on_hands
+    open_cards = player1.hand[0].cards.size + player2.hand[0].cards.size
+    open_all_cards if open_cards == 6
   end
 
   def start_over
@@ -157,7 +196,7 @@ class Main
     game.give_bank(player1, player2)
     @interface.show_balance(player1, player2)
     @interface.show_separator
-    default_value
+    # default_value
   end
 end
 
