@@ -10,15 +10,14 @@ require 'byebug'
 class Main
   SELECTIONS = /^[mMoOsS]$/.freeze
 
-  attr_reader :player1, :player2, :cards, :game, :show, :skip_turn
-  attr_reader :more_cards_player1, :more_cards_player2, :open_cards, :cards_picture
+  attr_reader :player1, :player2, :deck, :game, :show, :skip_turn
+  attr_reader :more_cards_player1, :more_cards_player2, :open_cards
   def initialize
     @show = false
     @skip_turn = true
     @more_cards_player1 = true
     @more_cards_player2 = true
     @open_cards = true
-    @cards_picture = []
     @interface = Interface.new
   end
 
@@ -31,13 +30,14 @@ class Main
       player1.hand << Hand.new
       @player2 = Player.new('Компьютер')
       player2.hand << Hand.new
-      @cards
+      @deck
       @game = Game.new
-      game
+      game_way
+      start_over
     end
   end
 
-  def game
+  def game_way
     loop do
       start_game
       deal
@@ -45,43 +45,55 @@ class Main
       player2_turn unless @show
       cards_on_hands unless @show
       player1_turn unless @show
+      show_points
       winner
+      break if zero_balance?
       default_value
     end
   end
 
+  def one_more_card(player)
+    game.give_card(player, deck)
+    self.more_cards_player1 = false if player = player1
+  end
+
+  def skip_player_turn(player)
+    self.skip_turn = false if player == player1
+  end
+
+  def open_all_cards
+    self.show = true
+  end
+
+  def start_over
+    @interface.start_over_ask
+    answer = @interface.receive_answer
+    @interface.start_over_choise(self, answer)
+  end
+
+  private
+
+  attr_writer :player1, :player2, :deck, :game, :show, :skip_turn
+  attr_writer :more_cards_player1, :more_cards_player2, :open_cards
+
+  def valid(choise)
+    raise 'Не правильный выбор' unless choise =~ SELECTIONS
+    raise 'Не правильный выбор' if choise =~/^[mM]$/ && !more_cards_player1
+    raise 'Не правильный выбор' if choise =~/^[sS]$/ && !skip_turn
+  end
+
   def start_game
-    self.cards = Deck.new
-    cards.cards_interfere
+    self.deck = Deck.new
+    deck.cards_interfere
     game.bet(player1, player2)
   end
 
   def deal
-    # self.cards = Deck.new
-    # cards.cards_interfere
     2.times do
-      game.give_card(player1, cards)
-      game.give_card(player2, cards)
+      game.give_card(player1, deck)
+      game.give_card(player2, deck)
     end
     show_points
-    # loop do
-    #   if player1.balance.zero?
-    #     @interface.show_winner_game(player2)
-    #     break
-    #   elsif player2.balance.zero?
-    #     @interface.show_winner_game(player1)
-    #     break
-    #   end 
-    #   self.cards = Deck.new
-    #   cards.cards_interfere
-    #   game.bet(player1, player2)
-    #   2.times do
-    #     game.give_card(player1, cards)
-    #     game.give_card(player2, cards)
-    #   end
-    #   show_points
-    #   player_selection
-    # end
   end
 
   def player1_turn
@@ -99,70 +111,6 @@ class Main
   rescue RuntimeError => e
     puts e.message
     retry
-  end
-
-  def one_more_card(player)
-    game.give_card(player, cards)
-    self.more_cards_player1 = false if player = player1
-    # game.give_card(player, cards)
-    # if player = player1
-    #   self.more_cards_player1 = false
-    #   show_points
-    #   player2_turn
-    # elsif self.cards.cards.length == 0
-    #   open_all_cards
-    # else
-    #   player_selection
-    # end
-  end
-
-  def skip_player_turn(player)
-    self.skip_turn = false if player == player1
-    # if player == player1
-    #   self.skip_turn = false
-    #   player2_turn
-    # else
-    #   player_selection
-    # end
-  end
-
-  def open_all_cards
-    self.show = true
-    # self.show = true
-    # show_points
-    # winner
-  end
-
-  def cards_on_hands
-    open_cards = player1.hand[0].cards.size + player2.hand[0].cards.size
-    open_all_cards if open_cards == 6
-  end
-
-  def start_over
-    @interface.start_over_ask
-    answer = @interface.receive_answer
-    @interface.start_over_choise(self, answer)
-  end
-
-  def default_value
-    self.show = false
-    self.skip_turn = true
-    self.more_cards_player1 = true
-    self.more_cards_player2 = true
-    self.open_cards = true
-    player1.hand[0].zeroing_cards
-    player2.hand[0].zeroing_cards
-  end
-
-  private
-
-  attr_writer :player1, :player2, :cards, :game, :show, :skip_turn
-  attr_writer :more_cards_player1, :more_cards_player2, :open_cards, :cards_picture
-
-  def valid(choise)
-    raise 'Не правильный выбор' unless choise =~ SELECTIONS
-    raise 'Не правильный выбор' if choise =~/^[mM]$/ && !more_cards_player1
-    raise 'Не правильный выбор' if choise =~/^[sS]$/ && !skip_turn
   end
 
   def player2_turn
@@ -183,6 +131,11 @@ class Main
     end
   end
 
+  def cards_on_hands
+    open_cards = player1.hand[0].cards.size + player2.hand[0].cards.size
+    open_all_cards if open_cards == 6
+  end
+
   def winner
     points_p1 = player1.hand[0].points
     points_p2 = player2.hand[0].points
@@ -196,7 +149,28 @@ class Main
     game.give_bank(player1, player2)
     @interface.show_balance(player1, player2)
     @interface.show_separator
-    # default_value
+  end
+
+  def default_value
+    self.show = false
+    self.skip_turn = true
+    self.more_cards_player1 = true
+    self.more_cards_player2 = true
+    self.open_cards = true
+    player1.hand[0].zeroing_cards
+    player2.hand[0].zeroing_cards
+  end
+
+  def zero_balance?
+    if player1.balance.zero?
+      @interface.show_winner_game(player2)
+      true
+    elsif player2.balance.zero?
+      @interface.show_winner_game(player1)
+      true
+    else
+      false
+    end 
   end
 end
 
